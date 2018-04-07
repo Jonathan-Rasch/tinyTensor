@@ -1,6 +1,7 @@
 from tinyTensor.Node import Node
 import numpy as np
 import typing
+import tinyTensor.Graph
 '''
 This class is created by the node class when an operation is performed on two nodes.
 
@@ -14,6 +15,8 @@ class Operation(Node):
         elif(operandA == None or operandB == None):
             raise Exception('provided operands cannot be None.')
         self.operator = operator
+        self.name = operator
+        tinyTensor.Graph._default_graph.appendNode(self)
 
         if(not isinstance(operandA,Node) and type(operandA) in [int,float]):
             self.NodeA = Node.variable(operandA)

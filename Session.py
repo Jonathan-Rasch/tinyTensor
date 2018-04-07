@@ -18,10 +18,9 @@ class Session():
         nodes_postOrder = postOrder(node)
         for node in nodes_postOrder:
             if node.isPlaceholder:
+                # placeholders need value from feed dict
                 node.value = feed_dict[node.name]
             elif isinstance(node,Operation):
-                #node.inputNodes = [input_node.value for input_node in node.inputNodes]
-                node.output = node.compute()#*node.inputNodes)
-            if(type(node.value) == list):
-                node.output = np.array(node.output)
+                #operations need to run compute to obtain value
+                node.compute()
         return node.value
