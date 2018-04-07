@@ -33,23 +33,23 @@ class Node():
         return placeholderNode
 
     def __add__ (self,other):
-        operation = tinyTensor.Operation.Operation(self, other, "+")
+        operation = tinyTensor.Operation.Operation([self, other], "+")
         return operation
 
     def __sub__ (self,other):
-        operation = tinyTensor.Operation.Operation(self, other, "-")
+        operation = tinyTensor.Operation.Operation([self, other], "-")
         return operation
 
     def __mul__ (self,other):
-        operation = tinyTensor.Operation.Operation(self, other, "*")
+        operation = tinyTensor.Operation.Operation([self, other], "*")
         return operation
 
     def __truediv__ (self,other):
-        operation = tinyTensor.Operation.Operation(self, other, "/")
+        operation = tinyTensor.Operation.Operation([self, other], "/")
         return operation
 
     def __mod__ (self,other):
-        operation = tinyTensor.Operation.Operation(self, other, "%")
+        operation = tinyTensor.Operation.Operation([self, other], "%")
         return operation
 
 
