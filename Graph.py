@@ -61,7 +61,7 @@ class Graph():
                 elif(node.isPlaceholder):
                     gv_file += current_node_str + " [label=\"{}({})\"] ;\n".format(node.name,node.value)
                 else:
-                    gv_file += current_node_str + " [label=\"{}\"] ;\n".format(node.value)
+                    gv_file += current_node_str + " [label=\"{}({})\"] ;\n".format(node.name,node.value)
                 # now creating connection line to parent(s) TODO: make it possible to have many parents, (nodes should have output nodes list)
                 if(parent_node_str != None):
                     gv_file += parent_node_str + " -- " + current_node_str + "; \n"

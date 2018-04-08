@@ -1,3 +1,4 @@
+from tinyTensor import Neuron
 from tinyTensor.Node import Node
 from tinyTensor.Operation import Operation
 import numpy as np
@@ -22,5 +23,7 @@ class Session():
                 node.value = feed_dict[node.name]
             elif isinstance(node,Operation):
                 #operations need to run compute to obtain value
+                node.compute()
+            elif node.isDropout:
                 node.compute()
         return node.value

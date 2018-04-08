@@ -6,14 +6,18 @@ import tinyTensor.Graph
 This class is created by the node class when an operation is performed on two nodes, or when the
 user uses one of the named functions that operation supports (e.g. sum or mean)
 '''
+
+oneParamFunctionList = ['sigmoid', 'tanh','relu','step']
+onePlusParamFunctList = ['sum', 'mean']
+twoParamFunctionList = ['+', '-', '/', '*', '%']
 class Operation(Node):
 
     def __init__(self, nodes, function: str) -> None:
         super().__init__()
         if(not isinstance(nodes,list)):
-            raise Exception("nodes argument needs to be a LIST of nodes")
+            nodes = [nodes]
         if(len(nodes) > 2): # oparation on a range of nodes
-            if (not function in ['sum', 'mean']):
+            if (not function in onePlusParamFunctList ):
                 raise Exception('invalid operation: {0}'.format(function))
             self.inputNodes = nodes
             self.name = function
@@ -21,7 +25,7 @@ class Operation(Node):
         elif(len(nodes) == 2): # simple operation on two nodes
             operandA = nodes[0]
             operandB = nodes[1]
-            if(not function in ['+', '-', '/', '*', '%']):
+            if(not function in twoParamFunctionList):
                 raise Exception('invalid operator provided: {0}'.format(function))
             elif(operandA == None or operandB == None):
                 raise Exception('provided operands cannot be None.')
@@ -40,7 +44,7 @@ class Operation(Node):
                 self.NodeB = operandB
             self.inputNodes = [operandA,operandB]
         elif(len(nodes) == 1): # single node operations, e.g activation functions
-            if (not function in ['sigmoid', 'tanh','relu','step']):
+            if (not function in oneParamFunctionList + onePlusParamFunctList):
                 raise Exception('invalid operation: {0}'.format(function))
             self.inputNodes = nodes
             self.name = function
@@ -69,6 +73,8 @@ class Operation(Node):
         :param argv:
         """
         nodes = []
+        if(not isinstance(argv,list) and not isinstance(argv,tuple)):
+            argv = [argv]
         for arg in argv:
             # some basic input validation
             if (arg == None):
@@ -160,13 +166,13 @@ class Operation(Node):
                 self.value += node.value
             self.value /= len(self.inputNodes)
         elif(self.operator == "sigmoid"):
-            self.value = self.sigmoid(self.inputNodes[0])
+            self.value = self.sigmoid(self.inputNodes[0].value)
         elif (self.operator == "tanh"):
-            self.value = self.tanh(self.inputNodes[0])
+            self.value = self.tanh(self.inputNodes[0].value)
         elif (self.operator == "relu"):
-            self.value = self.relu(self.inputNodes[0])
+            self.value = self.relu(self.inputNodes[0].value)
         elif (self.operator == "step"):
-            self.value = self.step(self.inputNodes[0])
+            self.value = self.step(self.inputNodes[0].value)
         else:
             raise Exception("Unknown operator: {0}".format(self.operator))
         return self

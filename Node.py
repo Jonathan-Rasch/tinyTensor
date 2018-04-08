@@ -1,6 +1,8 @@
 '''
 Nodes can be variables ,placeholders or operations.
 '''
+import random
+
 import tinyTensor.Graph
 
 class Node():
@@ -9,28 +11,64 @@ class Node():
     def __init__(self):
         self.value = None
         self.isPlaceholder = False
+        self.isDropout = False
+        self.isDropoutActive = False # dropout should only be active during training.
+        self.dropoutPercentage = 0
         self.name = ""
         self.inputNodes = []
 
     @classmethod
-    def variable(cls,value):
+    def variable(cls,value,name=""):
         if (value == None):
             raise Exception("A variable node cannot have a value of 'None'")
         variableNode = Node()
         variableNode.value = value
-        variableNode.isPlaceholder = False
+        variableNode.name = name
         tinyTensor.Graph._default_graph.appendNode(variableNode)
         return variableNode
 
     @classmethod
-    def placeholder(cls,name):
+    def placeholder(cls,name,value=None):
         if(name == None):
             raise Exception("Placeholders need to be assigned a unique name to allow their value to be changed via feed dictionary.")
         placeholderNode = Node()
         placeholderNode.name = name
+        placeholderNode.value = value
         placeholderNode.isPlaceholder = True
         tinyTensor.Graph._default_graph.appendNode(placeholderNode)
         return placeholderNode
+
+    @classmethod
+    def dropout(cls,dropout_percentage: float = 0):
+        if(dropout_percentage > 1 or dropout_percentage < 0):
+            raise Exception("invalid dropout percentage {}, value needs to be between 0 and 1 (inclusive)")
+        dropoutNode = Node()
+        dropoutNode.name = "dropout"
+        dropoutNode.isDropout = True
+        tinyTensor.Graph._default_graph.appendNode(dropoutNode)
+        return dropoutNode
+
+    def compute(self):
+        if(self.isDropout):
+            rand = random.randrange(0,1)
+            if(rand < self.dropoutPercentage):
+                self.value = 0
+            else:
+                self.value = self.inputNodes[0].value
+        return self
+
+    def addInputs(self,nodes):
+        if(not isinstance(nodes,list)):
+            nodes = [nodes]
+        if(not all(isinstance(x,Node) for x in nodes)):
+            raise Exception("nodes parameter should be a list of objects of type Node")
+        elif(self.isDropout and ((len(nodes) + len(self.inputNodes)) != 1)):
+            raise Exception("dropout nodes need to have 1 and only 1 input.")
+        self.inputNodes.extend(nodes)
+
+    def setInputs(self,nodes):
+        self.inputNodes.clear()
+        self.addInputs(nodes)
 
     def __add__ (self,other):
         operation = tinyTensor.Operation.Operation([self, other], "+")
