@@ -2,6 +2,7 @@ from tinyTensor.Graph import Graph
 from tinyTensor.Node import Node
 from tinyTensor.Session import Session
 from tinyTensor.Operation import Operation as op
+from sklearn.datasets import make_blobs
 
 g = Graph()
 g.set_default()
@@ -15,3 +16,10 @@ session = Session()
 result = session.run(node=z,feed_dict={"x":10})
 print(result)
 g.visualize(z)
+
+########################################################################################################################
+# SIMPLE CLASSIFICATION TEST
+########################################################################################################################
+
+
+

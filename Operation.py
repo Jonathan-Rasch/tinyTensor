@@ -3,30 +3,30 @@ import numpy as np
 import typing
 import tinyTensor.Graph
 '''
-This class is created by the node class when an operation is performed on two nodes.
-
+This class is created by the node class when an operation is performed on two nodes, or when the
+user uses one of the named functions that operation supports (e.g. sum or mean)
 '''
 class Operation(Node):
 
-    def __init__(self, nodes, operator: str) -> None:
+    def __init__(self, nodes, function: str) -> None:
         super().__init__()
         if(not isinstance(nodes,list)):
             raise Exception("nodes argument needs to be a LIST of nodes")
         if(len(nodes) > 2): # oparation on a range of nodes
-            if (not operator in ['sum','mean']):
-                raise Exception('invalid operation: {0}'.format(operator))
+            if (not function in ['sum', 'mean']):
+                raise Exception('invalid operation: {0}'.format(function))
             self.inputNodes = nodes
-            self.name = operator
-            self.operator = operator
-        else: # simple operation on two nodes
+            self.name = function
+            self.operator = function
+        elif(len(nodes) == 2): # simple operation on two nodes
             operandA = nodes[0]
             operandB = nodes[1]
-            if(not operator in ['+','-','/','*','%']):
-                raise Exception('invalid operator provided: {0}'.format(operator))
+            if(not function in ['+', '-', '/', '*', '%']):
+                raise Exception('invalid operator provided: {0}'.format(function))
             elif(operandA == None or operandB == None):
                 raise Exception('provided operands cannot be None.')
-            self.operator = operator
-            self.name = operator
+            self.operator = function
+            self.name = function
             tinyTensor.Graph._default_graph.appendNode(self)
 
             if(not isinstance(operandA,Node) and type(operandA) in [int,float]):
@@ -39,11 +39,27 @@ class Operation(Node):
             else:
                 self.NodeB = operandB
             self.inputNodes = [operandA,operandB]
+        elif(len(nodes) == 1): # single node operations, e.g activation functions
+            if (not function in ['sigmoid', 'tanh','relu','step']):
+                raise Exception('invalid operation: {0}'.format(function))
+            self.inputNodes = nodes
+            self.name = function
+            self.operator = function
+
+    """'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    NAMED OPERATIONS
+    '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''"""
 
     @classmethod
     def sum(cls,*argv):
         nodes = Operation.extractAndValidate(argv)
-        op = Operation(nodes=nodes,operator="sum")
+        op = Operation(nodes=nodes, function="sum")
+        return op
+
+    @classmethod
+    def mean(cls,*argv):
+        nodes = Operation.extractAndValidate(argv)
+        op = Operation(nodes=nodes, function="mean")
         return op
 
     @staticmethod
@@ -73,6 +89,55 @@ class Operation(Node):
                 raise Exception("Argument provided is not of type Node")
         return nodes
 
+    """'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    ACTIVATION FUNCTIONS
+    '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''"""
+
+    @classmethod
+    def sigmoid_act(cls, *argv):
+        nodes = Operation.extractAndValidate(argv)
+        op = Operation(nodes=nodes, function="sigmoid")
+        return op
+
+    @classmethod
+    def tanh_act(cls, *argv):
+        nodes = Operation.extractAndValidate(argv)
+        op = Operation(nodes=nodes, function="tanh")
+        return op
+
+    @classmethod
+    def relu_act(cls, *argv):
+        nodes = Operation.extractAndValidate(argv)
+        op = Operation(nodes=nodes, function="relu")
+        return op
+
+    @classmethod
+    def step_act(cls, *argv):
+        nodes = Operation.extractAndValidate(argv)
+        op = Operation(nodes=nodes, function="step")
+        return op
+
+    def sigmoid(self,value):
+        return 1 / (1 + np.exp(-value))
+
+    def tanh(self,value):
+        return np.tanh(value)
+
+    def relu(self,value):
+        if(value < 0):
+            return 0
+        else:
+            return value
+
+    def step(self,value):
+        if(value<0):
+            return -1
+        else:
+            return 1
+
+    """'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    COMPUTE
+    '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''"""
 
     def compute(self) -> Node:
         if (self.operator == "+"):
@@ -89,6 +154,19 @@ class Operation(Node):
             self.value = 0
             for node in self.inputNodes:
                 self.value += node.value
+        elif (self.operator == "mean"):
+            self.value = 0
+            for node in self.inputNodes:
+                self.value += node.value
+            self.value /= len(self.inputNodes)
+        elif(self.operator == "sigmoid"):
+            self.value = self.sigmoid(self.inputNodes[0])
+        elif (self.operator == "tanh"):
+            self.value = self.tanh(self.inputNodes[0])
+        elif (self.operator == "relu"):
+            self.value = self.relu(self.inputNodes[0])
+        elif (self.operator == "step"):
+            self.value = self.step(self.inputNodes[0])
         else:
             raise Exception("Unknown operator: {0}".format(self.operator))
         return self
