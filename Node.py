@@ -45,12 +45,13 @@ class Node():
         dropoutNode = Node()
         dropoutNode.name = "dropout"
         dropoutNode.isDropout = True
+        dropoutNode.dropoutPercentage = dropout_percentage
         tinyTensor.Graph._default_graph.appendNode(dropoutNode)
         return dropoutNode
 
     def compute(self):
         if(self.isDropout):
-            rand = random.randrange(0,1)
+            rand = random.randrange(0,1000)/1000
             if(rand < self.dropoutPercentage):
                 self.value = 0
             else:

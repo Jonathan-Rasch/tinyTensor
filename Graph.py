@@ -1,7 +1,8 @@
-from tinyTensor.Node import Node
+#from tinyTensor.Node import Node
+import tinyTensor
 import plotly.plotly as py
 from graphviz import render
-from tinyTensor.Operation import Operation
+#from tinyTensor.Operation import Operation
 
 
 def init():
@@ -11,7 +12,7 @@ def init():
 def postOrder(node):
     nodes_postorder = []
     def recurse(node):
-        if isinstance(node, Node):
+        if isinstance(node, tinyTensor.Node.Node):
             for input_node in node.inputNodes:
                 recurse(input_node)
             nodes_postorder.append(node)
@@ -24,7 +25,7 @@ class Graph():
         self.nodes = []
         self.placeholderNames = []
 
-    def appendNode(self,node: Node):
+    def appendNode(self,node):
         if(node.name in self.placeholderNames and node.isPlaceholder):
             raise Exception("Placeholder name \"{}\" is already in use in current graph".format(node.name))
         elif(node.isPlaceholder):
@@ -36,7 +37,7 @@ class Graph():
         global _default_graph
         _default_graph = self
 
-    def visualize(self,node):
+    def visualize_nodes(self, node):
         # generating the .gv file
         gv_file = "graph \"\" \n{\n"
         global nodeCounter
@@ -54,9 +55,9 @@ class Graph():
                 nodeCounter += 1
                 ''' operation might contain non-node constants, hence need to make sure that they are converted to node'''
                 if(type(node) in (int,float)):
-                    node = Node.variable(node) # creating a variable node
+                    node = tinyTensor.Node.Node.variable(node) # creating a variable node
                 '''creating the node labels'''
-                if(isinstance(node,Operation)):
+                if(isinstance(node,tinyTensor.Operation.Operation)):
                     gv_file += current_node_str + " [label=\"{} ({})\"] ;\n".format(node.operator,node.value)
                 elif(node.isPlaceholder):
                     gv_file += current_node_str + " [label=\"{}({})\"] ;\n".format(node.name,node.value)
@@ -76,8 +77,28 @@ class Graph():
         #render('dot','png','network.gv')
         print(gv_file)
 
-
-
+    def visualize_layers(self,layer_list):
+        neuron_dict = {}
+        #generating dict of neurons
+        gv_file = "graph \"\" \n{\n"
+        #dealing with input nodes
+        for node in layer_list[0].inputList:
+            neuron_dict[node] = node.name
+            gv_file += neuron_dict[node] + " [label=\"{}\"] ;\n".format(node.name)
+        # creating dict for neurons
+        for layer in layer_list:
+            for neuron in layer.neuronList:
+                neuron_dict[neuron] = "{}".format(neuron.name)
+                gv_file += neuron_dict[neuron] + " [label=\"{}\"] ;\n".format(neuron.name)
+        # drawing links between neurons
+        for layer in layer_list:
+            for neuron in layer.neuronList:
+                for input_neuron in neuron.inputNeurons:
+                    gv_file += neuron_dict[neuron] + " -- " + neuron_dict[input_neuron] + "; \n"
+        gv_file += "}\n"
+        with open("network.gv","w+") as file:
+            file.writelines(gv_file)
+        print(gv_file)
 
 
 

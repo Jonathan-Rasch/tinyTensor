@@ -21,9 +21,5 @@ class Session():
             if node.isPlaceholder:
                 # placeholders need value from feed dict
                 node.value = feed_dict[node.name]
-            elif isinstance(node,Operation):
-                #operations need to run compute to obtain value
-                node.compute()
-            elif node.isDropout:
-                node.compute()
+            node.compute()
         return node.value

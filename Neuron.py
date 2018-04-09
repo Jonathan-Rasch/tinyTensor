@@ -1,5 +1,6 @@
 from tinyTensor.Operation import Operation
 from tinyTensor.Node import Node
+import tinyTensor.Graph
 import random as rand
 
 class Neuron(Node):
@@ -14,6 +15,7 @@ class Neuron(Node):
             raise Exception("'dropout' (parameter) should have a value between 0(inclusive) and 1(inclusive).")
         self.activation = activation_fnct
         self.dropout_percentage = dropout
+        self.inputNeurons = input_neurons
         ########################################################################################################################
         # Neuron structure
         ########################################################################################################################
@@ -37,6 +39,11 @@ class Neuron(Node):
             self.inputNodes = [self.dropoutNode]
         else:
             self.inputNodes = [self.activation_function]
+        tinyTensor.Graph._default_graph.appendNode(self)
+
+    def compute(self):
+        self.value = self.inputNodes[0].value
+        return
 
 
 
