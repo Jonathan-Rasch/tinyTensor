@@ -145,7 +145,11 @@ class Operation(Node):
     COMPUTE
     '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''"""
 
-    def compute(self) -> Node:
+    def compute(self,step) -> Node:
+        if (self.step == step):
+            return self
+        else:
+            self.step = step
         if (self.operator == "+"):
             self.value = self.NodeA.value + self.NodeB.value
         elif (self.operator == "-"):

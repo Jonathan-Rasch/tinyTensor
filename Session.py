@@ -21,5 +21,5 @@ class Session():
             if node.isPlaceholder:
                 # placeholders need value from feed dict
                 node.value = feed_dict[node.name]
-            node.compute()
+            node.compute(step=1)
         return node.value

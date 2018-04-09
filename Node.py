@@ -16,6 +16,7 @@ class Node():
         self.dropoutPercentage = 0
         self.name = ""
         self.inputNodes = []
+        self.step = 0 # the current learning / computation step (prevents nodes being computed twice or more)
 
     @classmethod
     def variable(cls,value,name=""):
@@ -49,12 +50,19 @@ class Node():
         tinyTensor.Graph._default_graph.appendNode(dropoutNode)
         return dropoutNode
 
-    def compute(self):
+    def compute(self,step):
+        if (self.step == step):
+            return self
+        else:
+            self.step = step
         if(self.isDropout):
-            rand = random.randrange(0,1000)/1000
+            random.seed()
+            rand = random.randrange(1001)/1000
             if(rand < self.dropoutPercentage):
+                print("DROP {}:{}".format(self.dropoutPercentage,rand))
                 self.value = 0
             else:
+                print("OK {}:{}".format(self.dropoutPercentage, rand))
                 self.value = self.inputNodes[0].value
         return self
 

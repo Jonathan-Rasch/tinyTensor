@@ -84,12 +84,12 @@ class Graph():
         #dealing with input nodes
         for node in layer_list[0].inputList:
             neuron_dict[node] = node.name
-            gv_file += neuron_dict[node] + " [label=\"{}\"] ;\n".format(node.name)
+            gv_file += neuron_dict[node] + " [label=\"{}({})\"] ;\n".format(node.name,node.value)
         # creating dict for neurons
         for layer in layer_list:
             for neuron in layer.neuronList:
                 neuron_dict[neuron] = "{}".format(neuron.name)
-                gv_file += neuron_dict[neuron] + " [label=\"{}\"] ;\n".format(neuron.name)
+                gv_file += neuron_dict[neuron] + " [label=\"{}({})\"] ;\n".format(neuron.name,neuron.value)
         # drawing links between neurons
         for layer in layer_list:
             for neuron in layer.neuronList:

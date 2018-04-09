@@ -56,8 +56,10 @@ import matplotlib.pyplot as plt
 g3 = Graph()
 g3.set_default()
 inputs = [Node.variable(0,"v0"),Node.variable(1,"v1"),Node.variable(2,"v2"),Node.variable(3,"v3"),Node.variable(4,"v4"),Node.variable(5,"v5")]
-layer1 = Layer(inputs,10,"relu",0)
+layer1 = Layer(inputs,10,"relu",0.5)
 layer2 = Layer(layer1.neuronList,5,"relu",0)
 layer3 = Layer(layer2.neuronList,1,"relu",0)
+session3 = Session()
+session3.run(layer3.neuronList[0],{})
 g3.visualize_layers([layer1,layer2,layer3])
-
+#g3.visualize_nodes(layer3.neuronList[0])

@@ -22,11 +22,11 @@ class Neuron(Node):
         self.weighted_inputs = []
         self.input_weights = []
         # bias input, and normal weighted neuron inputs
-        self.input_weights.append(Node.variable(rand.randrange(-1000, 1000)/1000))
+        self.input_weights.append(Node.variable(rand.randrange(0, 1000)/1000))
         self.weighted_inputs.append(self.input_weights[0] * -1)
         for index,node in enumerate(input_neurons):
             index = index + 1  # bias of neuron is at index 0, so need to shift by 1
-            self.input_weights.append(Node.variable(rand.randrange(-1000, 1000)/1000))  # random initialisation of input weights
+            self.input_weights.append(Node.variable(rand.randrange(0, 1000)/1000))  # random initialisation of input weights
             self.weighted_inputs.append(self.input_weights[index] * node)
         # computing weighted sum of inputs
         self.weighted_sum_of_inputs = Operation.sum(self.weighted_inputs)
@@ -41,7 +41,11 @@ class Neuron(Node):
             self.inputNodes = [self.activation_function]
         tinyTensor.Graph._default_graph.appendNode(self)
 
-    def compute(self):
+    def compute(self,step):
+        if (self.step == step):
+            return self
+        else:
+            self.step = step
         self.value = self.inputNodes[0].value
         return
 
